@@ -23,19 +23,19 @@ function decimalLessThan(precision) {
 }
 
 function unrollEnum(col) {
-	return col.columnType.match(/enum\((.+)\)/)[1]
+	return col.columntype.match(/enum\((.+)\)/)[1]
 }
 
 var checks = [
 
 	function intCheck(column) {
 		var checks = ''
-		if (maxIntValues[column.dataType]) {
+		if (maxIntValues[column.datatype]) {
 			checks += '.number().integer()'
 
 			var min = 0
-			var max = maxIntValues[column.dataType]
-			if (column.columnType.indexOf('unsigned') === -1) {
+			var max = maxIntValues[column.datatype]
+			if (column.columntype.indexOf('unsigned') === -1) {
 				max = getSignedValue(max)
 				min = -1 * (max + 1)
 			}
@@ -47,42 +47,51 @@ var checks = [
 	},
 
 	function dateCheck(column) {
-		return ifValThen(column, 'dataType', ['datetime', 'date', 'timestamp'], '.date()')
+		return ifValThen(column, 'datatype', ['datetime', 'date', 'timestamp'], '.date()')
 	},
 
 	function stringCheck(column) {
-		return ifValThen(column, 'dataType', ['text', 'varchar', 'char'], '.string().max(' + column.characterMaximumLength + ')')
+		return ifValThen(column, 'datatype', ['text', 'varchar', 'char'], '.string().max(' + column.charactermaximumlength + ')')
 	},
 
 	function boolCheck(column) {
-		return (column.dataType === 'bit' && column.numericPrecision == '1') ? '.boolean()' : ''
+		return (column.datatype === 'bit' && column.numericprecision == '1') ? '.boolean()' : ''
 	},
 
 	function decimalCheck(column) {
-		return ifValThen(column, 'dataType', 'decimal', '.number().precision('
-			+ column.numericScale + ').less(' + decimalLessThan(column.numericPrecision - column.numericScale) + ')')
+		return ifValThen(column, 'datatype', 'decimal', '.number().precision('
+			+ column.numericscale + ').less(' + decimalLessThan(column.numericprecision - column.numericscale) + ')')
 	},
 
 	function enumCheck(column) {
-		if (column.dataType === 'enum') {
+		if (column.datatype === 'enum') {
 			return '.any().valid(' + unrollEnum(column) + ')'
 		}
 		return ''
 	},
 
 	function nullableCheck(column) {
-		if (column.isNullable === 'YES') {
+		if (column.isnullable === 'YES') {
 			return '.allow(null)'
-		} else if (column.isNullable === 'NO') {
+		} else if (column.isnullable === 'NO') {
 			return '.invalid(null)'
 		}
 	}
 
 ]
 
+function lowercaseProperties(obj) {
+	var result = {}
+	for (var prop in obj) {
+		result[prop.toLowerCase()] = obj[prop]
+	}
+	return result
+}
+
 module.exports = function(columns, camelCaseProperties) {
 	return 'Joi.object({\n\t' + columns.map(function(column) {
-		var property = camelCaseProperties ? toCamelCase(column.columnName) : column.columnName
+		column = lowercaseProperties(column)
+		var property = camelCaseProperties ? toCamelCase(column.columnname) : column.columnname
 		return property + ': Joi' + checks.map(function(check) {
 			return check(column)
 		}).join('')

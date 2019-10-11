@@ -1,9 +1,11 @@
 const assert = require('assert')
 const testData = require('./test-column-data')
+const testData2 = require('./test-uppercase-column-data')
 const build = require('../build')
 
 const camel = true
 const actual = build(testData, camel)
+const actual2 = build(testData2, camel)
 
 const expected = `Joi.object({
 	projectId: Joi.number().integer().max(4294967295).min(0).invalid(null),
@@ -38,3 +40,4 @@ const expected = `Joi.object({
 console.log(actual)
 
 assert.equal(actual, expected)
+assert.equal(actual2, expected)
