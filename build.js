@@ -51,7 +51,7 @@ var checks = [
 	},
 
 	function stringCheck(column) {
-		return ifValThen(column, 'datatype', ['text', 'varchar', 'char'], '.string().max(' + column.charactermaximumlength + ')')
+		return ifValThen(column, 'dataType', ['text', 'varchar', 'char'], '.string().allow(\'\').max(' + column.charactermaximumlength + ')')
 	},
 
 	function boolCheck(column) {
